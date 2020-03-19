@@ -12,4 +12,4 @@
 
 ## More Details
 - Support uploading these types of file: gif, jpeg, jpg, png, docx, pdf, txt. Change it in upload_file.php
-- Max uploading file size is 20480000 btyes, change the value in constValue
+- Max uploading file size is 20480000 btyes, change the value in constValue.php
