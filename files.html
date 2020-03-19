@@ -1,0 +1,175 @@
+<html>
+<head>
+<meta charset="utf-8">
+<title>Content Management System</title>
+</head>
+<body>
+<div>
+  <h2 style="background-color:#7CCD7C;margin:0px;text-align:center;">Content Management System</h2>
+  <a href="#" onclick="logOut()" style="float: right; margin-right: 20px">Logout</a>
+</div>
+
+<div style="text-align: center;width:1000px;margin:20px auto;">
+  <form action="createDir.php" method="post" enctype="multipart/form-data" onsubmit="return checkDirForm()">
+    <label for="directory">Directory Name</label>
+    <input type="text" name="directory" id="directory">
+    <input type="hidden" name="path" id="dir" value="">
+    <input type="submit" name="submit" value="Create Directory">
+  </form>
+
+  <form action="upload_file.php" method="post" enctype="multipart/form-data">
+      <label for="file">File Name</label>
+
+      <input type="file" id="file" name="file" style="display:none" onchange="changeAgentContent()" />
+      <input type="text" value="" disabled id="inputFileAgent" />
+      <input type="button" onclick="document.getElementById('file').click()" value="Browse..." />
+      <input type="submit" name="submit" value="Submit">
+      <input type="hidden" name="path" id="path" value="">
+  </form>
+
+  <table>
+      <thead>
+          <tr>
+              <td>ID</td>
+              <td>Name</td>
+              <td>File Size(Byte)</td>
+              <td>File Type</td>
+              <td>Create Time</td>
+          </tr>
+      </thead>
+      <tbody id="body"></tbody>
+  </table>
+
+</div>
+<div style="text-align: center;margin:20px auto;">
+  <button type="button" id = "back" onclick= "goToLastDir()" style="background-color: #DCDCDC;">Go Back</button>
+  <button type="button" onclick= "goToTopDir()" style="background-color: #DCDCDC;">Go Top</button>
+</div>
+
+
+
+</body>
+</html>
+
+<style>
+    table{
+        border: solid 0.5px #000000;
+    }
+    td{
+        width: 100px;
+        border: solid 0.5px #000000;
+    }
+</style>
+
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+</script>
+<script type="text/javascript">
+  function changeAgentContent(){
+      document.getElementById("inputFileAgent").value = document.getElementById("file").value;
+  }
+
+  function checkDirForm() {
+    var dir = document.getElementById("directory").value;
+    if (dir == "") {alert("Directory cannot be null!");return false;}
+    for(var i=0; i < result.length; i++) {
+      var ret = result[i];
+      if (ret.file_type == 'directory' && ret.file_name == dir) {
+        alert("Directory names conflict!");
+        return false;
+      }
+    }
+    return true;
+
+  }
+
+  function goToLastDir() {
+    var tp = decodeURIComponent(path);
+    if (tp == '/root' || tp == '') {window.location.reload();return;}
+    var tarray = tp.split('/');
+    if (tarray.length <= 1) {window.location.reload();return;}
+    tarray.pop();
+    window.location.href = 'files.html?path=' + encodeURIComponent(tarray.join('/'));
+  }
+
+  function goToTopDir() {
+    window.location.href = 'files.html';
+  }
+
+  function logOut() {
+    deleteCookie('id');
+    window.location.href = 'login.html';
+  }
+
+  function deleteCookie(name) {
+    document.cookie = name+"=;expires="+(new Date(0)).toGMTString();
+    //document.cookie = name+'=;expires='+'Thu, 01 Jan 1970 00:00:00 GMT';
+  }
+
+  function add(id, filename, filesize, timestamp, realname, filetype, filepath){
+      var TR  = document.createElement("tr");
+      var tdId  = document.createElement("td");
+      var tdFilename = document.createElement("td");
+      var tdFilesize = document.createElement("td");
+      var tdFiletype = document.createElement("td");
+      var tdDate = document.createElement("td");
+      var tdOpr = document.createElement("td");
+
+      tdId.innerHTML = id;
+      tdFilename.innerHTML = filename;
+      tdFilesize.innerHTML = filesize;
+      tdFiletype.innerHTML = filetype;
+      tdDate.innerHTML = getLocalTime(timestamp);
+      
+      if (filetype == 'directory') {
+        pth = encodeURIComponent(filepath + '/' + filename);
+        tdOpr.innerHTML += '&nbsp&nbsp<a href="files.html?path=' + pth + '" >Open</a>'; 
+      } else {
+        tdOpr.innerHTML = '<a href="/upload/' + realname + '" download=' + "'" + filename + "'" + '>Download</a>';
+      }
+
+      var body = document.getElementById("body");
+      body.appendChild(TR);
+      TR.appendChild(tdId);
+      TR.appendChild(tdFilename);
+      TR.appendChild(tdFilesize);
+      TR.appendChild(tdFiletype);
+      TR.appendChild(tdDate);
+      TR.appendChild(tdOpr);
+  }
+
+    function getQueryVariable(variable)
+    {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+        return(false);
+    }
+
+    function getLocalTime(timestamp) {  
+      return new Date(parseInt(timestamp) * 1000).toLocaleString().replace(/:\d{1,2}$/,' ');  
+    }
+    console.log(document.cookie);
+    var node = document.getElementById("path");
+    var dirnode = document.getElementById("dir");
+    var path = getQueryVariable('path');
+    var result = [];
+    //path = encodeURIComponent(path ? path : '/root');
+    node.value = dirnode.value = path ? path : '/root';
+    $(document).ready(function() {
+      $.get("filelist.php?path="+encodeURIComponent(node.value), function(data,status){
+        if (data.hasOwnProperty('login') && !data.login) {window.location.href="login.html";return;}
+        if (data.length <= 0) {return;}
+        result = data;
+        for (var i = 0; i < data.length; i++) {
+          var nd = data[i];
+          add(i+1, nd.file_name, nd.file_size, nd.create_time, nd.realname, nd.file_type, nd.file_path);
+        }
+        
+      });
+    });
+    
+    
+</script>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Sign Up</title>
+    <script type="text/javascript">
+        function checkName(){
+            var inputNode = document.getElementById("add_name");
+            var spanNode = document.getElementById("user_name");
+            var nameLength = document.getElementById("add_name").value.length;
+
+            var content = inputNode.value;
+            var reg = /^[a-zA-Z ]*$/;
+            if(content==""){
+                spanNode.innerHTML = "Cannot be null".fontcolor("red");
+                return false;
+            }
+            if (nameLength > 15) {
+                spanNode.innerHTML = "Username too long".fontcolor("red");
+                return false;
+            }
+            if (reg.test(content)){
+                spanNode.innerHTML = "Correct".fontcolor("green");
+                return true;
+            }else{
+                spanNode.innerHTML = "Character not allowed".fontcolor("red");
+                return false;
+            }
+        }
+
+        function checkPassword(){
+            var password = document.getElementById("add_password");
+            var passwordLength = document.getElementById("add_password").value.length;
+            var content = password.value;
+            var spanNode = document.getElementById("user_password");
+            if (passwordLength > 30) {
+                spanNode.innerHTML = "Password too long".fontcolor("red");
+                return false;
+            }
+            if (content != "") {
+                spanNode.innerHTML = "Correct".fontcolor("green");
+                return true;
+            }else{
+                spanNode.innerHTML = "Password cannot be null".fontcolor("red");
+                return false;
+            }
+        }
+
+        function checkUpassword(){
+            var password = document.getElementById("add_password").value;
+            var upassword = document.getElementById("upassword").value;
+            var spanNode = document.getElementById("uupassword");
+            if (upassword != password) {
+                spanNode.innerHTML = "Passwords aren't consistent".fontcolor("red");
+                return false;
+            }
+            if (upassword != "") {
+                spanNode.innerHTML = "Correct".fontcolor("green");
+                return true;
+            }else{
+                spanNode.innerHTML = "Input the password again".fontcolor("red");
+                return false;
+            }
+            
+        }
+
+        function checkForm() {
+            var add_name = checkName();
+            var add_password = checkPassword();
+            var upassword = checkUpassword();
+            return add_name && add_password && upassword;
+        }
+    </script>
+</head>
+<style type="text/css">
+    .wrapper{
+
+        text-align: center;
+        width:1000px;
+        margin:20px auto;
+    }
+    h2{
+    background-color:#7CCD7C;
+    margin:0px;
+    text-align:center;
+    }
+    .add{
+        margin:20px auto;
+    }
+    .add labal{
+        text-align: center;
+        background-color:     #FFB6C1;
+        color: #fff;
+        margin:20px auto;
+    }
+    .btn { 
+        background-color: #008CBA;;
+        border-radius:8px;
+        color: white;
+        padding: 6px 93px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+    }
+    .error {
+        color: #FF0000;
+    }
+</style>
+<body>
+<div class="wrapper">
+<h2>Content Management System</h2>
+<div class="add">
+<labal>Sign in</labal>
+</div>
+    <div>
+    <form method="post" action="register.php" onsubmit="return checkForm()">
+    <labal>Username:</labal> <input type="text" name="add_name" id="add_name" placeholder="Set your username">
+    <span id="user_name" class="error">*</span><br><br>
+
+    <labal>Password:</labal>&nbsp&nbsp&nbsp&nbsp<input type="password" name="add_password" id="add_password" placeholder="Set your password">
+    <span id="user_password" class="error">*</span><br><br>
+
+    <labal>Confirm password:</labal><input type="password" name="upassword" id="upassword" placeholder="Input the password again">
+    <span id="uupassword" class="error">*</span><br><br>
+    <input class="btn" type="submit" value="Register">
+    </form>
+    </div>
+</div>
+</body>
+</html>
+
